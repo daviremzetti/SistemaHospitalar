@@ -1,16 +1,19 @@
-
 package visao;
 
 import dao.ConvenioDAO;
 import dao.PacienteDAO;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import javax.swing.JOptionPane;
-
 import modelo.Convenio;
 import modelo.Paciente;
 import servicos.ConvenioServicos;
 import servicos.ServicosFactory;
+import validacao.ValidarCampoObrigatorio;
+import validacao.ValidarDataNascimento;
+import validacao.ValidarEmail;
+import validacao.ValidarMaximoCaracter;
+import validacao.ValidarMinimoCaracter;
 
 public class GuiCadPaciente extends javax.swing.JInternalFrame {
 
@@ -19,6 +22,10 @@ public class GuiCadPaciente extends javax.swing.JInternalFrame {
      */
     public GuiCadPaciente() {
         initComponents();
+        jtNome.setDocument(new ValidarMaximoCaracter(50, jlNome.getText()));
+        jtCpf.setDocument(new ValidarMaximoCaracter(11, jlCpf.getText()));
+        jtEndereco.setDocument(new ValidarMaximoCaracter(200, jlEndereco.getText()));
+        jtTelefone.setDocument(new ValidarMaximoCaracter(15, jlTelefone.getText()));
         preencherCombo();
     }
 
@@ -41,14 +48,14 @@ public class GuiCadPaciente extends javax.swing.JInternalFrame {
         jtEndereco = new javax.swing.JTextField();
         jlEspecialidade = new javax.swing.JLabel();
         jlDataNasc = new javax.swing.JLabel();
-        jtDataNasc = new javax.swing.JTextField();
-        jtTelefone = new javax.swing.JTextField();
         jlTelefone = new javax.swing.JLabel();
         jlEmail1 = new javax.swing.JLabel();
         jtEmail1 = new javax.swing.JTextField();
         jlRG = new javax.swing.JLabel();
         jtRG = new javax.swing.JTextField();
         jcConvenio = new javax.swing.JComboBox<>();
+        jtTelefone = new javax.swing.JFormattedTextField();
+        jtDataNasc = new javax.swing.JFormattedTextField();
         jLayeredPane2 = new javax.swing.JLayeredPane();
         jbLimpar = new javax.swing.JButton();
         jbCadastrar1 = new javax.swing.JButton();
@@ -72,6 +79,8 @@ public class GuiCadPaciente extends javax.swing.JInternalFrame {
         jlEndereco.setText("Endereço");
         jLayeredPane1.add(jlEndereco);
         jlEndereco.setBounds(40, 140, 60, 30);
+
+        jtNome.setText(" ");
         jLayeredPane1.add(jtNome);
         jtNome.setBounds(140, 20, 210, 30);
         jLayeredPane1.add(jtCpf);
@@ -86,14 +95,6 @@ public class GuiCadPaciente extends javax.swing.JInternalFrame {
         jlDataNasc.setText("Data Nascimento");
         jLayeredPane1.add(jlDataNasc);
         jlDataNasc.setBounds(40, 260, 100, 30);
-
-        jtDataNasc.setToolTipText("(dd/mm/aaaa)");
-        jLayeredPane1.add(jtDataNasc);
-        jtDataNasc.setBounds(140, 260, 210, 30);
-
-        jtTelefone.setToolTipText("(xx) xxxx-xxxx");
-        jLayeredPane1.add(jtTelefone);
-        jtTelefone.setBounds(140, 180, 130, 30);
 
         jlTelefone.setText("Telefone");
         jLayeredPane1.add(jlTelefone);
@@ -111,8 +112,31 @@ public class GuiCadPaciente extends javax.swing.JInternalFrame {
         jLayeredPane1.add(jtRG);
         jtRG.setBounds(140, 100, 210, 30);
 
+        jcConvenio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jcConvenioActionPerformed(evt);
+            }
+        });
         jLayeredPane1.add(jcConvenio);
         jcConvenio.setBounds(140, 300, 150, 30);
+
+        try {
+            jtTelefone.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("(##)####-####")));
+        } catch (java.text.ParseException ex) {
+            ex.printStackTrace();
+        }
+        jtTelefone.setToolTipText("");
+        jLayeredPane1.add(jtTelefone);
+        jtTelefone.setBounds(140, 180, 150, 30);
+
+        try {
+            jtDataNasc.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("##/##/####")));
+        } catch (java.text.ParseException ex) {
+            ex.printStackTrace();
+        }
+        jtDataNasc.setToolTipText("");
+        jLayeredPane1.add(jtDataNasc);
+        jtDataNasc.setBounds(140, 260, 150, 30);
 
         jLayeredPane2.setBackground(new java.awt.Color(255, 255, 255));
         jLayeredPane2.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -161,20 +185,42 @@ public class GuiCadPaciente extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jcConvenioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jcConvenioActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jcConvenioActionPerformed
+
     private void cadastrar() {
         try {
+            String nome = jtNome.getText();
+            ValidarCampoObrigatorio.validar(nome, jlNome.getText());
 
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            String cpf = jtCpf.getText();
+            ValidarCampoObrigatorio.validar(cpf, jlCpf.getText());
+            new ValidarMinimoCaracter(jlCpf.getText(),cpf, 11);
 
-            Paciente pac = new Paciente();
+            String endereco = jtEndereco.getText();
+            ValidarCampoObrigatorio.validar(endereco, jlEndereco.getText());
+
+            String telefone = jtTelefone.getText();
+            ValidarCampoObrigatorio.validar(telefone, jlTelefone.getText());
+
+            String email = jtEmail1.getText();
+            new ValidarEmail(email);
+            String rg = jtRG.getText();
+
+            String dataNascStr = jtDataNasc.getText();
+            ValidarDataNascimento.validar(dataNascStr);
+            Date dataNasc = ValidarDataNascimento.getDataValidada();
 
             // Atribuindo valores aos atributos do Paciente com base nos campos preenchidos pelo usuário na tela
-            pac.setNome(jtNome.getText());
-            pac.setEndereco(jtEndereco.getText());
-            pac.setDataNascimento(sdf.parse(jtDataNasc.getText()));
-            pac.setTelefone(jtTelefone.getText());
-            pac.setCpf(jtCpf.getText());
-            pac.setRg(jtRG.getText());
+            Paciente pac = new Paciente();
+            pac.setNome(nome);
+            pac.setEndereco(endereco);
+            pac.setTelefone(telefone);
+            pac.setCpf(cpf);
+            pac.setRg(rg);
+            pac.setEmail(email);
+            pac.setDataNascimento(dataNasc);
 
             // Verificando se um convênio foi selecionado no JComboBox
             if (!(jcConvenio.getSelectedIndex() == 0)) {
@@ -193,20 +239,20 @@ public class GuiCadPaciente extends javax.swing.JInternalFrame {
 
             } else {
                 JOptionPane.showMessageDialog(this,
-                        "Selecione um produto");
+                        "Selecione um convênio");
             } // fecha else
 
-           // Criando objeto PacienteDAO para cadastrar o paciente no banco de dados
+            // Criando objeto PacienteDAO para cadastrar o paciente no banco de dados
             PacienteDAO pacDAO = new PacienteDAO();
             pacDAO.cadastrarPaciente(pac);
 
             // Mensagem de sucesso
             JOptionPane.showMessageDialog(this, "Paciente cadastrado com sucesso!");
-
+            limpar();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
                     "ERRO! " + e.getMessage());
-        } // fecha catch
+        }
 
     }// fecha método
 
@@ -215,9 +261,12 @@ public class GuiCadPaciente extends javax.swing.JInternalFrame {
         jtNome.setText("");
         jtEndereco.setText("");
         jtCpf.setText("");
+        jtRG.setText("");
+        jtEmail1.setText("");
+        jtTelefone.setText("");
+        jtDataNasc.setText("");
     }// fecha método
 
-    
     // metodo para preencher o combo box com os produtos cadastrados no banco de dados
     private void preencherCombo() {
         try {
@@ -255,7 +304,6 @@ public class GuiCadPaciente extends javax.swing.JInternalFrame {
 
     private void jbCadastrar1ActionPerformed(java.awt.event.ActionEvent evt) {
         cadastrar();
-        limpar();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -273,11 +321,11 @@ public class GuiCadPaciente extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jlRG;
     private javax.swing.JLabel jlTelefone;
     private javax.swing.JTextField jtCpf;
-    private javax.swing.JTextField jtDataNasc;
+    private javax.swing.JFormattedTextField jtDataNasc;
     private javax.swing.JTextField jtEmail1;
     private javax.swing.JTextField jtEndereco;
     private javax.swing.JTextField jtNome;
     private javax.swing.JTextField jtRG;
-    private javax.swing.JTextField jtTelefone;
+    private javax.swing.JFormattedTextField jtTelefone;
     // End of variables declaration//GEN-END:variables
 }

@@ -6,7 +6,6 @@ import java.awt.Graphics;
 import javax.swing.ImageIcon;
 
 
-
 public class Menu extends javax.swing.JFrame {
 
     /**
@@ -46,6 +45,7 @@ public class Menu extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jMenuBar1.setBackground(new java.awt.Color(51, 153, 255));
+        jMenuBar1.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jMenuBar1.setAlignmentY(1.0F);
         jMenuBar1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
 
